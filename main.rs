@@ -38,7 +38,7 @@ impl Clone for Strategy {
 
 impl fmt::Display for Strategy {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "################\n{}-Stop Strategy:\nStints: {:?}\nPitting laps: {:?}\nMax Tyre Wear: {:.2} per lap\nMax Fuel Consumption: {:.2} per lap\n--------------\n", self.stops, self.stint_length, self.pit_laps, self.max_tyre_wear, self.max_fuel_cons)
+        write!(f, "################\n{}-Stop Strategy:\nStints: {}\nPitting laps: {}\n\nMax Tyre Wear: \t\t{:.2} per lap\nMax Fuel Consumption: \t{:.2} per lap\n--------------\n", self.stops, array_to_string(self.stint_length), array_to_string(self.pit_laps), self.max_tyre_wear, self.max_fuel_cons)
     }
 }
 
@@ -101,4 +101,18 @@ fn get_input_i32(msg:&str) -> i32 {
     io::stdin().read_line(&mut input_line).unwrap();
     let x:i32 = input_line.trim().parse().expect("Input not an integer");
     return x;
+}
+
+fn array_to_string(arr:[i32;7]) -> String {
+    let mut string = String::new();
+    let mut first = true;
+    for n in arr {
+        if n > 0 {
+            if first {first = false;}
+            else {string.push_str(", ");}
+            string.push_str(&n.to_string());
+
+        }
+    }
+    string
 }
