@@ -19,6 +19,7 @@ struct Stint {
 struct Strategy {
     stops: i32,
     stint_length: [i32;7],
+    pit_laps: [i32;7],
     max_tyre_wear: f64,
     max_fuel_cons: f64,
 }
@@ -31,25 +32,26 @@ impl Copy for Strategy {}
 
 impl Clone for Strategy {
     fn clone(&self) -> Strategy {
-        Strategy{stops: self.stops, stint_length: self.stint_length, max_tyre_wear: self.max_tyre_wear, max_fuel_cons:self.max_fuel_cons}
+        Strategy{stops: self.stops, stint_length: self.stint_length, pit_laps: self.pit_laps, max_tyre_wear: self.max_tyre_wear, max_fuel_cons:self.max_fuel_cons}
     }
 }
 
 impl fmt::Display for Strategy {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "################\n{0}-Stop Strategy:\nStints: {1:?}\nMax Tyre Wear: {2:.2} per lap\nMax Fuel Consumption: {3:.2} per lap\n--------------\n", self.stops, self.stint_length, self.max_tyre_wear, self.max_fuel_cons)
+        write!(f, "################\n{}-Stop Strategy:\nStints: {:?}\nPitting laps: {:?}\nMax Tyre Wear: {:.2} per lap\nMax Fuel Consumption: {:.2} per lap\n--------------\n", self.stops, self.stint_length, self.pit_laps, self.max_tyre_wear, self.max_fuel_cons)
     }
 }
 
 
 impl Strategy {
     fn new() -> Strategy {
-        return Strategy {stops: 0, stint_length: [0; 7], max_tyre_wear: 0.0, max_fuel_cons:0.0};
+        return Strategy {stops: 0, stint_length: [0; 7], pit_laps: [0; 7], max_tyre_wear: 0.0, max_fuel_cons:0.0};
     }
 
 
     fn create(mut laps:i32, stops:i32) -> Strategy {
         let mut stint_length: [i32; 7] = [0;7];
+        let mut pit_laps: [i32; 7] = [0;7];
         let mut max_tyre_wear: f64 = 0.0;
         let mut max_fuel_cons: f64 = 0.0;
         let mut stints = stops+1;
@@ -61,10 +63,14 @@ impl Strategy {
             if i == 0 {
                 max_tyre_wear = (100.0-MIN_TYRE_COND)/stint_length[0] as f64;
                 max_fuel_cons = (100.0-MIN_FUEL_LOAD)/stint_length[0] as f64;
+                pit_laps[i as usize] = stint_length[i as usize];
+            } else if i < stops{
+                pit_laps[i as usize] = stint_length[i as usize] + pit_laps[(i-1) as usize];
             }
 
         }
-        return Strategy {stops, stint_length, max_tyre_wear, max_fuel_cons};
+
+        Strategy {stops, stint_length, pit_laps, max_tyre_wear, max_fuel_cons}
     }
 }
 
