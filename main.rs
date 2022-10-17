@@ -24,7 +24,7 @@ struct Strategy {
     max_fuel_cons: f64,
 }
 
-//const pitlane_time:f64 = 30.0;
+const PITLANE_TIME:f64 = 30.0;
 const MIN_TYRE_COND:f64 = 5.0;
 const MIN_FUEL_LOAD:f64 = 2.0;
 
@@ -38,7 +38,9 @@ impl Clone for Strategy {
 
 impl fmt::Display for Strategy {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "################\n{}-Stop Strategy:\nStints: {}\nPitting laps: {}\n\nMax Tyre Wear: \t\t{:.2} per lap\nMax Fuel Consumption: \t{:.2} per lap\n--------------\n", self.stops, array_to_string(self.stint_length), array_to_string(self.pit_laps), self.max_tyre_wear, self.max_fuel_cons)
+        let time_lost_in_pit: f64 = PITLANE_TIME / laps_from_stints(self.stint_length) as f64;
+        write!(f, "################\n{}-Stop Strategy:\nStints: {}\nPitting laps: {}\n\nMax Tyre Wear: \t\t{:.2} per lap\nMax Fuel Consumption: \t{:.2} per lap\n\nTime lost in pit: {:.2}s per lap\nTime lost in pit per stop: +{:.2}s per lap\n--------------\n",
+            self.stops, array_to_string(self.stint_length), array_to_string(self.pit_laps), self.max_tyre_wear, self.max_fuel_cons, time_lost_in_pit*(self.stops+1) as f64, time_lost_in_pit)
     }
 }
 
@@ -101,6 +103,14 @@ fn get_input_i32(msg:&str) -> i32 {
     io::stdin().read_line(&mut input_line).unwrap();
     let x:i32 = input_line.trim().parse().expect("Input not an integer");
     return x;
+}
+
+fn laps_from_stints(arr:[i32;7]) -> i32 {
+    let mut laps:i32 = 0;
+    for n in arr.iter() {
+        laps += n;
+    }
+    laps
 }
 
 fn array_to_string(arr:[i32;7]) -> String {
